@@ -29,6 +29,7 @@ internal sealed class MagenticManagerActor :
 
     private readonly AgentType _orchestrationType;
     private readonly MagenticManager _manager;
+    private readonly  IReadOnlyList<ChatMessageContent> _historyContext;
     private readonly ChatHistory _chat;
     private readonly MagenticTeam _team;
 
@@ -47,10 +48,12 @@ internal sealed class MagenticManagerActor :
     /// <param name="team">The team of agents being orchestrated</param>
     /// <param name="orchestrationType">Identifies the orchestration agent.</param>
     /// <param name="logger">The logger to use for the actor</param>
-    public MagenticManagerActor(AgentId id, IAgentRuntime runtime, OrchestrationContext context, MagenticManager manager, MagenticTeam team, AgentType orchestrationType, ILogger? logger = null)
+    public MagenticManagerActor(AgentId id, IAgentRuntime runtime, OrchestrationContext context, MagenticManager manager, MagenticTeam team, AgentType orchestrationType,  IReadOnlyList<ChatMessageContent> historyContext, ILogger? logger = null)
         : base(id, runtime, context, DefaultDescription, logger)
     {
+        this._historyContext = historyContext;
         this._chat = [];
+        this._chat.AddRange(_historyContext);
         this._manager = manager;
         this._orchestrationType = orchestrationType;
         this._team = team;
@@ -92,7 +95,8 @@ internal sealed class MagenticManagerActor :
             string agentInstruction = string.Empty;
             try
             {
-                MagenticManagerContext context = this.CreateContext();
+                MagenticManagerContext context =  this.CreateContext(this._chat);
+            
                 MagenticProgressLedger status = await this._manager.EvaluateTaskProgressAsync(context, cancellationToken).ConfigureAwait(false);
 
                 Debug.WriteLine($"STATUS:\n{status.ToJson()}");

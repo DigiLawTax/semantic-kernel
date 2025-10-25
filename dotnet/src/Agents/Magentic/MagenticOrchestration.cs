@@ -19,18 +19,20 @@ public class MagenticOrchestration<TInput, TOutput> :
     internal const string DefaultAgentDescription = "A helpful agent.";
 
     private readonly MagenticManager _manager;
+    private readonly  IReadOnlyList<ChatMessageContent> _historyContext;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MagenticOrchestration{TInput, TOutput}"/> class.
     /// </summary>
     /// <param name="manager">The manages the flow of the group-chat.</param>
     /// <param name="agents">The agents participating in the orchestration.</param>
-    public MagenticOrchestration(MagenticManager manager, params Agent[] agents)
+    public MagenticOrchestration(MagenticManager manager,  IReadOnlyList<ChatMessageContent> historyContext, params Agent[] agents)
         : base(agents)
     {
         Verify.NotNull(manager, nameof(manager));
 
         this._manager = manager;
+        this._historyContext = historyContext;
     }
 
     /// <inheritdoc />
@@ -69,7 +71,7 @@ public class MagenticOrchestration<TInput, TOutput> :
                 this.FormatAgentType(context.Topic, "Manager"),
                 (agentId, runtime) =>
                 {
-                    MagenticManagerActor actor = new(agentId, runtime, context, this._manager, team, outputType, context.LoggerFactory.CreateLogger<MagenticManagerActor>());
+                    MagenticManagerActor actor = new(agentId, runtime, context, this._manager, team, outputType, _historyContext, context.LoggerFactory.CreateLogger<MagenticManagerActor>());
 #if !NETCOREAPP
                     return actor.AsValueTask<IHostableAgent>();
 #else

@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.Collections.Generic;
+
 namespace Microsoft.SemanticKernel.Agents.Magentic;
 
 /// <summary>
@@ -12,8 +14,8 @@ public sealed class MagenticOrchestration : MagenticOrchestration<string, string
     /// </summary>
     /// <param name="manager">The manages the flow of the group-chat.</param>
     /// <param name="members">The agents to be orchestrated.</param>
-    public MagenticOrchestration(MagenticManager manager, params Agent[] members)
-        : base(manager, members)
+    public MagenticOrchestration(MagenticManager manager,  IReadOnlyList<ChatMessageContent> history, params Agent[] members)
+        : base(manager, history, members)
     {
     }
 }
