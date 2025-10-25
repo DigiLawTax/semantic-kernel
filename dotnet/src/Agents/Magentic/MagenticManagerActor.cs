@@ -198,7 +198,7 @@ internal sealed class MagenticManagerActor :
     private async ValueTask PrepareAsync(bool isReset, CancellationToken cancellationToken)
     {
         ChatHistory internalChat = [.. this._chat];
-        this._chat.Clear();
+       //hmm this._chat.Clear();
 
         MagenticManagerContext context = this.CreateContext(internalChat);
 
